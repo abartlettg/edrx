@@ -43,21 +43,48 @@ except:
 # EC are met by data displayed from the PREVIOUS zip code 
 # and therefore data related to the previous zip code will 
 # be retrieved unless there is a hard-coded wait time
-time.sleep(10)
+time.sleep(5)
 
 pharm_name_lis = driver.find_elements_by_class_name("goldAddUnderline-1CwEN")
 for i in pharm_name_lis:
 	print(i.text)
+print(len(pharm_name_lis))
+
+# Creating an index that will allow me to TRY to get list price for
+# each container, but populate w/NULL if there is none... Each
+# container id ends w/a number -0 to -(n-1) where n is the number
+# of elements in the list of pharmacy names
+num = len(pharm_name_lis)
+idx = [i for i in range(num)]
+print(idx)
 
 # Note that the full price is not available for every pharmacy
 # Need to figure out how to deal with this... need to index somehow
-rx_full_price_lis = driver.find_elements_by_class_name("retailPriceStrikeSavings-1p-dB")
-for i in rx_full_price_lis:
-	print(i.text)
+#rx_full_price_lis = driver.find_elements_by_class_name("retailPriceStrikeSavings-1p-dB")
+
+# Need to look under the container ID based on idx to see if an element with class name
+# of "retailPriceStrikeSavings-1p-dB" exists.  If so, append value to list.  If not, append null.
+# This way the lists will all be the same length and will match up properly when combined
+# into a dataframe.
+#rx_full_price_lis=[]
+for i in idx:
+	xp = "//*[@id='uat-price-row-coupon-" + str(i) + "']/div[2]/div/span[1]"
+	try:	#### //div/ul/li[i]/div/div/span[@class='retailPriceStrikeSavings-1p-dB']  GETTING ALL NULLS... NEED TO WORK ON XPATH ####
+		rx_full_price = driver.find_element_by_xpath(xp)
+		print(rx_full_price.text)
+	except:
+		print('NULL')
+
+##### ABOVE PROBLEM SOLVED AND WORKING... COMMITTING NOW #####
+
+#			for i in rx_full_price_lis:
+#	print(i.text)
+#print(len(rx_full_price_lis))
 
 rx_disc_price_lis = driver.find_elements_by_class_name("display-2zakM")
 for i in rx_disc_price_lis:
 	print(i.text)
+print(len(rx_disc_price_lis))
 
 
 
