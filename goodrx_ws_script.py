@@ -9,13 +9,27 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import pandas as pd
 
-PATH = "C:\\Users\\adria\\chromedriver_win32\\chromedriver.exe"
-driver = webdriver.Chrome(PATH)
+# Set Path for Input and Output Files
+DFPATH = "C:\\Users\\adria\\NYCDSA\\Online Bootcamp\\Rx Project\\Data"
+# Set Path for Chrome Driver
+CDPATH = "C:\\Users\\adria\\chromedriver_win32\\chromedriver.exe"
 
-url_lis = ["https://www.goodrx.com/sildenafil?dosage=100mg&form=tablet&label_override=sildenafil&quantity=30&sort_type=popularity",
-           "https://www.goodrx.com/tadalafil-cialis?dosage=20mg&form=tablet&label_override=tadalafil+%28Cialis%29&quantity=30&sort_type=popularity"
-           "https://www.goodrx.com/vardenafil?dosage=20mg&form=tablet&label_override=vardenafil&quantity=30&sort_type=popularity"]
-zipcode_lis = [10025, 60629, 77084, 90011]
+driver = webdriver.Chrome(CDPATH)
+
+##### Optimally, I wanted this code to cycle through a list of URLs and ZipCodes, but the goodrx site was detecting
+##### webscraping and refusing to move forward when designed like this.  Concerned that I may be booted off the site
+##### completely prior to getting all the data I want to analyze for this project, I decided to run the script separately
+##### for each URL and zip code combination to continue and come back to this later to optimize if I decide I want more
+##### data or to run this for analysis on different types of Rxs in the future.  
+url_lis = ["https://www.goodrx.com/sildenafil?dosage=100mg&form=tablet&label_override=sildenafil&quantity=30&sort_type=popularity"]
+#"https://www.goodrx.com/vardenafil?dosage=20mg&form=tablet&label_override=vardenafil&quantity=30&sort_type=popularity"
+#"https://www.goodrx.com/sildenafil?dosage=100mg&form=tablet&label_override=sildenafil&quantity=30&sort_type=popularity"
+#"https://www.goodrx.com/tadalafil-cialis?dosage=20mg&amp;form=tablet&amp;label_override=tadalafil+%28Cialis%29&amp;quantity=30&amp;sort_type=popularity"]
+zipcode_lis = [90011]
+#10025
+#60629
+#77084
+#90011
 
 # Loop through URL List
 for u in url_lis:
@@ -26,19 +40,22 @@ for u in url_lis:
 			ok_btn = WebDriverWait(driver, 10).until(
 				EC.presence_of_element_located((By.CLASS_NAME, "okButton-hyrC_"))
 				)
+			time.sleep(2)
 			ok_btn.click()
 		except:
 			print("OK Button Not Detected")
 
 # Loop through Zipcode List
-		for z in zipcode_lis
+		for z in zipcode_lis:
 				set_loc_btn = driver.find_element_by_class_name("btn-3E6az")
+				time.sleep(2)
 				set_loc_btn.click()
 
 				try:
 					enter_zip = WebDriverWait(driver, 10).until(
 								EC.presence_of_element_located((By.ID, "locationModalInput"))
 								)
+					time.sleep(2)
 					enter_zip.send_keys(z)
 					enter_zip.send_keys(Keys.RETURN)
 				except:
@@ -48,7 +65,7 @@ for u in url_lis:
 
 # This needs to be an implicit wait because elements for prior zip code
 # already exist on the page (EC are already satisfied by previous data)
-				time.sleep(5)
+				time.sleep(7)
 
 				pharm_name_lis = []
 				pharm_name = driver.find_elements_by_class_name("goldAddUnderline-1CwEN")
@@ -61,6 +78,8 @@ for u in url_lis:
 				num = len(pharm_name_lis)
 				idx = [i for i in range(num)]
 				print(idx)
+
+				time.sleep(2)
 
 				rx_full_price_lis = []
 				for i in idx:
@@ -77,6 +96,8 @@ for u in url_lis:
 				print(rx_full_price_lis)
 				print(len(rx_full_price_lis))
 
+				time.sleep(2)
+
 				rx_disc_price_lis = []
 				rx_disc_price = driver.find_elements_by_class_name("display-2zakM")
 				for i in rx_disc_price:
@@ -88,12 +109,14 @@ for u in url_lis:
 				rx_df = pd.DataFrame(list(zip(pharm_name_lis, rx_full_price_lis, rx_disc_price_lis)),
                				   columns =['pharmacy_name', 'rx_full_price', 'rx_disc_price'])
 				rx_df = rx_df.assign(url=u, zipcode=z)
-# NEED TO SET WORKING DIRECTORY TO WHERE SCRIPT IS BEING RUN FROM?
-				filename = '/data/results.csv'
-				with open(filename, 'a') as file_object:
-    				file_object.write("xxxxxxx")
 
+				filename = DFPATH + '\\results.csv'
+				#with open(filename, 'a') as file_object:
+    				#file_object.write("xxxxxxx")
+				rx_df.to_csv(filename, header=False)
 				print(rx_df)
+
+				driver.quit()
 
 #Outer Logic:
 #		•	Initialize results.csv and log.txt
