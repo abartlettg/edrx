@@ -1,4 +1,3 @@
-# edrx
 ED Rx Webscraping Project
 2nd Project for NYC Data Science Academy Bootcamp
 Written by Adriana Bartlett Gray
