@@ -6,7 +6,7 @@ Description:
 The purpose of this project is to utilize webscraping skills and data analysis skills to explore pricing of ED medications when using the goodrx.com discount.
 
 Project Status:
-This project is still a work-in-progress.  Selenium webscraping script runs properly to retrieve and write data to an output file.  And, R script works properly to load multiple data files into one dataframe for analysis. 
+This project is still a work-in-progress.  Selenium webscraping script runs properly to retrieve and write data to an output file.  And, R script works properly to load multiple data files into one dataframe for analysis and produce summary tables and graphs. 
 
 Requirements:
 * Python
