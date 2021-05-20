@@ -170,7 +170,108 @@ edrx_sum_df %>%
   ggplot(aes(RxDose, MinDiscPricePerMg)) +
   geom_col()
 
-### RETURN TO ALL GRAPHS TO IMPROVE AESTHETICS FOR PRESENTATION
+
+### Analysis of Lowest Cost Pharmacies when using GoodRx for the most
+### often prescribed dosages (according to drugs.com) of the three Rxs
+### Sildenafil 50
+### Tadalafil 20
+### Vardenafil 20
+
+unique(edrx_df$Pharmacy)
+# 28 unique pharmacy names which appear to already be standardized...
+# no duplicates due to differences in capitalization, punctuation, or spelling
+
+# First, get average DiscPrice for each pharmacy
+pharm_data = edrx_df %>%
+  filter(RxName == 'vardenafil' & RxDose == '20') %>%
+  group_by(Pharmacy) %>%
+  summarise(AvgDiscPrice = mean(DiscPrice)) %>%
+  arrange(AvgDiscPrice)
+
+pharm_df = data.frame(pharm_data)
+pharm_df_10 = slice_head(pharm_df,n=10)
+
+pharm_df_10 %>%
+  ggplot(aes(Pharmacy, AvgDiscPrice)) +
+  geom_col()
+
+### The above graphs are not really useful for presentation because there
+### are too many smaller/regional pharmacies that show up.  This could cause
+### the audience to lose interest if they don't see pharmacies that they 
+### personally recognize on the graph.
+
+# So, let's ask this question instead...
+# Which pharmacies show up the most across all data for having discount
+# pricing through GoodRx?  The most a pharmacy can show up is 48 times
+# because there are 48 data files for different Rx, Dose, and Zipcode.
+# Selecting pharmacies w/a count of >36 in the data, will give us the
+# pharmacies that show up more than 75% when searching for a particular
+# Rx and Dose across multiple zipcodes.
+
+pharm_tally = edrx_df %>%
+  select('RxName', 'RxDose', 'Pharmacy', 'DiscPrice') %>%
+  group_by(Pharmacy) %>%
+  tally()
+  
+pharm_tally_df = data.frame(pharm_tally)
+pharm_tally_df
+
+nw_pharm = pharm_tally_df %>%
+  filter(n>36)
+nw_pharm_df = data.frame(nw_pharm)
+ 
+# This gives us the following nationwide pharmacies:
+# 1       Costco 42
+# 2 CVS Pharmacy 38
+# 3 Target (CVS) 48
+# 4    Walgreens 44
+# 5      Walmart 48
+# Use these pharmacies to do a side by side comparison
+
+# Boxplot variation in pricing by mg across zipcodes by pharmacies having
+# the most GoodRx discounts.
+
+edrx_nw_pharm = inner_join(edrx_df, nw_pharm_df, by='Pharmacy' )
+
+edrx_nw_pharm_df = data.frame(edrx_nw_pharm)
+edrx_nw_pharm_df
+
+edrx_nw_pharm_df %>%
+  filter(RxName == 'sildenafil' & (!is.na(DiscPrice))) %>%
+  group_by(Pharmacy) %>%
+  mutate(DiscPricePerMg = DiscPrice/((as.numeric(RxDose))*(as.numeric(RxCount)))) %>%
+  ggplot(aes(Pharmacy,DiscPricePerMg)) +
+  geom_boxplot()
+
+edrx_nw_pharm_df %>%
+  filter(RxName == 'tadalafil' & (!is.na(DiscPrice))) %>%
+  group_by(Pharmacy) %>%
+  mutate(DiscPricePerMg = DiscPrice/((as.numeric(RxDose))*(as.numeric(RxCount)))) %>%
+  ggplot(aes(Pharmacy,DiscPricePerMg)) +
+  geom_boxplot()
+
+edrx_nw_pharm_df %>%
+  filter(RxName == 'vardenafil' & (!is.na(DiscPrice))) %>%
+  group_by(Pharmacy) %>%
+  mutate(DiscPricePerMg = DiscPrice/((as.numeric(RxDose))*(as.numeric(RxCount)))) %>%
+  ggplot(aes(Pharmacy,DiscPricePerMg)) +
+  geom_boxplot()
+
+### The above shows that Walmart and Costco are a safe bet for getting a great
+### price on the two most prescribed ED Meds through a Nationwide Pharmacy, but
+### for Vardenafil (newly generic), you are better off going to the other three
+### pharmacies.  This is not entirely unexpected as Costco and Walmart are 
+### power players when it comes to buying in bulk for highly popular products,
+### but don't pay attention as much to using their negotiation power with 
+### products that are not mainstream.
+
+### This is good to know if you commonly shop at Walmart or Costco and are 
+### prescribed sildenafil or tadalafil.  You can count on these two big
+### pharmacies to provide these Rxs at a cost that is not necessarily the 
+### absolute lowest, but within a tight range around lowest discount price 
+### with GoodRx card so that you don't necessarily have to look up the price
+### on GoodRx to know you will get a good deal.
 
 
+### RETURN TO ALL GRAPHS TO IMPROVE AESTHETICS FOR READABILITY
 
