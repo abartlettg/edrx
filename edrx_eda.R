@@ -20,18 +20,18 @@ setwd("C:/Users/adria/NYCDSA/Online Bootcamp/Rx Project")
 #print(rx_list)
 
 # List of rxname, rxdose, and rxcount used for webscraping
-rx_list = list((list("sildenafil",20,30)),
-               (list("sildenafil",25,30)),
-               (list("sildenafil",50,30)),
-               (list("sildenafil",100,30)),
-               (list("tadalafil",2.5,30)),
-               (list("tadalafil",5,30)),
-               (list("tadalafil",10,30)),
-               (list("tadalafil",20,30)),
-               (list("vardenafil",2.5,30)),
-               (list("vardenafil",5,30)),
-               (list("vardenafil",10,30)),
-               (list("vardenafil",20,30)))
+rx_list = list((c("sildenafil",20,30)),
+               (c("sildenafil",25,30)),
+               (c("sildenafil",50,30)),
+               (c("sildenafil",100,30)),
+               (c("tadalafil",2.5,30)),
+               (c("tadalafil",5,30)),
+               (c("tadalafil",10,30)),
+               (c("tadalafil",20,30)),
+               (c("vardenafil",2.5,30)),
+               (c("vardenafil",5,30)),
+               (c("vardenafil",10,30)),
+               (c("vardenafil",20,30)))
 
 # List of zipcodes used for webscraping
 zc_list = list(10025,60629,77084,90011)
@@ -70,7 +70,7 @@ edrx_sum = edrx_df %>%
   group_by(ZipCode, RxName, RxDose) %>%
   summarise(min(DiscPrice), mean(DiscPrice), median(DiscPrice), max(DiscPrice), min(ListPrice), mean(ListPrice), median(ListPrice), max(ListPrice))
 
-edrx_sum
+edrx_sum_df = data.frame(edrx_sum)
 
 
 ### Boxplot by ZipCode for Variation in Discount Price ###
@@ -120,6 +120,57 @@ edrx_df %>%
 ###          other factors instead of comparing across zipcodes
 #############################################################################
 
+### Boxplot for each Rx type showing cost/mg by mg size pill
+### - for the consideration of pill splitting to reduce cost
+
+edrx_df %>%
+  filter(RxName == 'sildenafil') %>%
+  mutate(DiscPricePer50Mg = (DiscPrice/((as.numeric(RxDose))*(as.numeric(RxCount)))*50)) %>%
+  ggplot(aes((as.character(RxDose)),DiscPricePer50Mg)) +
+  geom_boxplot()
+
+edrx_df %>%
+  filter(RxName == 'tadalafil') %>%
+  mutate(DiscPricePerMg = DiscPrice/((as.numeric(RxDose))*(as.numeric(RxCount)))) %>%
+  ggplot(aes((as.character(RxDose)),DiscPricePerMg)) +
+  geom_boxplot()
+
+edrx_df %>%
+  filter(RxName == 'vardenafil') %>%
+  mutate(DiscPricePerMg = DiscPrice/((as.numeric(RxDose))*(as.numeric(RxCount)))) %>%
+  ggplot(aes((as.character(RxDose)),DiscPricePerMg)) +
+  geom_boxplot()
+
+### The resulting box plots from above are not useful for presentation purposes
+### because they don't visualize the comparison well enough.  For a consumer who
+### is trying to minimize cost, it makes better sense to assume they will choose
+### from the lowest cost pharmacy first... so a bar chart is better to show
+### this more clearly.
+
+### Barchart for each Rx type showing cost/mg by mg size pill
+### - for the consideration of pill splitting to reduce cost
+
+edrx_sum_df$MinDiscPrice = edrx_sum_df$min.DiscPrice.
+
+edrx_sum_df %>%
+  filter(RxName == 'sildenafil') %>%
+  mutate(MinDiscPricePerMg = MinDiscPrice/((as.numeric(RxDose))*30)) %>%
+  ggplot(aes(RxDose, MinDiscPricePerMg)) +
+  geom_col()
+
+edrx_sum_df %>%
+  filter(RxName == 'tadalafil') %>%
+  mutate(MinDiscPricePerMg = MinDiscPrice/((as.numeric(RxDose))*30)) %>%
+  ggplot(aes(RxDose, MinDiscPricePerMg)) +
+  geom_col()
+
+edrx_sum_df %>%
+  filter(RxName == 'vardenafil') %>%
+  mutate(MinDiscPricePerMg = MinDiscPrice/((as.numeric(RxDose))*30)) %>%
+  ggplot(aes(RxDose, MinDiscPricePerMg)) +
+  geom_col()
+
+### RETURN TO ALL GRAPHS TO IMPROVE AESTHETICS FOR PRESENTATION
 
 
 
