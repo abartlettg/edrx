@@ -78,34 +78,47 @@ edrx_sum_df = data.frame(edrx_sum)
 edrx_df %>%
   filter(RxName =='sildenafil' & RxDose == 50) %>%
   ggplot(aes(as.character(ZipCode), DiscPrice)) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(x='Zip Code', y='GoodRx Discount Price') +
+  theme(panel.background = element_rect(fill = "#4495A2"))
 
 edrx_df %>%
   filter(RxName =='tadalafil' & RxDose == 20) %>%
   ggplot(aes(as.character(ZipCode), DiscPrice)) +
-  geom_boxplot()
-  
+  geom_boxplot() +
+  labs(x='Zip Code', y='GoodRx Discount Price') +
+  theme(panel.background = element_rect(fill = "#F9D448"))
+
 edrx_df %>%
   filter(RxName =='vardenafil' & RxDose == 20) %>%
   ggplot(aes(as.character(ZipCode), DiscPrice)) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(x='Zip Code', y='GoodRx Discount Price') +
+  theme(panel.background = element_rect(fill = "#7CA655"))
 
 ### Boxplot by ZipCode for Variation in List Price ###
   
 edrx_df %>%
   filter(RxName =='sildenafil' & RxDose == 50) %>%
   ggplot(aes(as.character(ZipCode), ListPrice)) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(x='Zip Code', y='List Price Without Discount') +
+  theme(panel.background = element_rect(fill = "#4495A2"))
 
 edrx_df %>%
   filter(RxName =='tadalafil' & RxDose == 20) %>%
   ggplot(aes(as.character(ZipCode), ListPrice)) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(x='Zip Code', y='List Price Without Discount') +
+  theme(panel.background = element_rect(fill = "#F9D448"))
+
 
 edrx_df %>%
   filter(RxName =='vardenafil' & RxDose == 20) %>%
   ggplot(aes(as.character(ZipCode), ListPrice)) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(x='Zip Code', y='List Price Without Discount') +
+  theme(panel.background = element_rect(fill = "#7CA655"))
 
 #############################################################################
 ### From the above, we see...
@@ -155,21 +168,27 @@ edrx_sum_df$MinDiscPrice = edrx_sum_df$min.DiscPrice.
 edrx_sum_df %>%
   filter(RxName == 'sildenafil') %>%
   mutate(MinDiscPricePerMg = MinDiscPrice/((as.numeric(RxDose))*30)) %>%
-  ggplot(aes(RxDose, MinDiscPricePerMg)) +
-  geom_col()
+  ggplot(aes(x = factor(RxDose, level = c(100,50,25,20)), MinDiscPricePerMg)) +
+  geom_col() +
+  labs(x='Pill Dose', y='Minimum Discount Price Per Mg') +
+  theme(panel.background = element_rect(fill = "#4495A2"))
 
 edrx_sum_df %>%
   filter(RxName == 'tadalafil') %>%
   mutate(MinDiscPricePerMg = MinDiscPrice/((as.numeric(RxDose))*30)) %>%
-  ggplot(aes(RxDose, MinDiscPricePerMg)) +
-  geom_col()
+  ggplot(aes(x = factor(RxDose, level = c(20,10,5,2.5)), MinDiscPricePerMg)) +
+  geom_col() +
+  labs(x='Pill Dose', y='Minimum Discount Price Per Mg') +
+  theme(panel.background = element_rect(fill = "#F9D448"))
+  
 
 edrx_sum_df %>%
   filter(RxName == 'vardenafil') %>%
   mutate(MinDiscPricePerMg = MinDiscPrice/((as.numeric(RxDose))*30)) %>%
-  ggplot(aes(RxDose, MinDiscPricePerMg)) +
-  geom_col()
-
+  ggplot(aes(x = factor(RxDose, level = c(20,10,5,2.5)), MinDiscPricePerMg)) +
+  geom_col() +
+  labs(x='Pill Dose', y='Minimum Discount Price Per Mg') +
+  theme(panel.background = element_rect(fill = "#7CA655"))
 
 ### Analysis of Lowest Cost Pharmacies when using GoodRx for the most
 ### often prescribed dosages (according to drugs.com) of the three Rxs
@@ -241,21 +260,27 @@ edrx_nw_pharm_df %>%
   group_by(Pharmacy) %>%
   mutate(DiscPricePerMg = DiscPrice/((as.numeric(RxDose))*(as.numeric(RxCount)))) %>%
   ggplot(aes(Pharmacy,DiscPricePerMg)) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(x='Nationwide Pharmacy', y='GoodRx Discount Price') +
+  theme(panel.background = element_rect(fill = "#4495A2"))
 
 edrx_nw_pharm_df %>%
   filter(RxName == 'tadalafil' & (!is.na(DiscPrice))) %>%
   group_by(Pharmacy) %>%
   mutate(DiscPricePerMg = DiscPrice/((as.numeric(RxDose))*(as.numeric(RxCount)))) %>%
   ggplot(aes(Pharmacy,DiscPricePerMg)) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(x='Nationwide Pharmacy', y='GoodRx Discount Price') +
+  theme(panel.background = element_rect(fill = "#F9D448"))
 
 edrx_nw_pharm_df %>%
   filter(RxName == 'vardenafil' & (!is.na(DiscPrice))) %>%
   group_by(Pharmacy) %>%
   mutate(DiscPricePerMg = DiscPrice/((as.numeric(RxDose))*(as.numeric(RxCount)))) %>%
   ggplot(aes(Pharmacy,DiscPricePerMg)) +
-  geom_boxplot()
+  geom_boxplot() +
+  labs(x='Nationwide Pharmacy', y='GoodRx Discount Price') +
+  theme(panel.background = element_rect(fill = "#7CA655"))
 
 ### The above shows that Walmart and Costco are a safe bet for getting a great
 ### price on the two most prescribed ED Meds through a Nationwide Pharmacy, but
@@ -272,6 +297,6 @@ edrx_nw_pharm_df %>%
 ### with GoodRx card so that you don't necessarily have to look up the price
 ### on GoodRx to know you will get a good deal.
 
-
-### RETURN TO ALL GRAPHS TO IMPROVE AESTHETICS FOR READABILITY
+### ENHANCEMENTS TO COLOR, LABELS, AND LEVELS ONLY DONE FOR GRAPHS
+### USEFUL FOR PRESENTATION.
 
